@@ -3,7 +3,7 @@ package minesweeper
 import kotlin.random.Random
 
 class Game(private val boardSize: Int, minesRequired: Int) {
-    private val board: Array<Array<Int>> = Array(boardSize){Array(boardSize){0}}
+    private val board: Array<Array<Int>> = Array(boardSize) { Array(boardSize) { 0 } }
 
     init {
         if (minesRequired > boardSize * boardSize) {
@@ -20,18 +20,35 @@ class Game(private val boardSize: Int, minesRequired: Int) {
         }
     }
 
-    fun render() :String {
+    fun render(): String {
         var result = ""
         for (i in 0 until boardSize) {
             for (j in 0 until boardSize) {
                 result += when {
                     board[i][j] == 1 -> "X"
-                    board[i][j] == 0 -> "."
+                    board[i][j] == 0 -> {
+                        val surroundingMines = getSurroundingMines(i, j)
+                        if(surroundingMines == 0) {
+                            "."
+                        } else {
+                            surroundingMines.toString()
+                        }
+                    }
                     else -> throw Exception("Unsupported value in grid")
                 }
             }
             result += "\n"
         }
         return result
+    }
+
+    private fun getSurroundingMines(height: Int, width: Int): Int {
+        var mineCount = 0
+        for (i in maxOf(0, height - 1) until minOf(boardSize, height + 2)) {
+            for (j in maxOf(0, width - 1) until minOf(boardSize, width + 2)) {
+                if (board[i][j] == 1) mineCount++
+            }
+        }
+        return mineCount
     }
 }
